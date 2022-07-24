@@ -15,7 +15,7 @@ const BN = Web3.utils.BN;
 
 contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
 
-  let baseURI = "https://ipfs.io/ipfs/QmUMxEPMdDfz3FjQbnrhejUoUPX4DydGEptGA2PDsjMKMh/";
+  let baseURI = "https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/";
 
   before(async () => {
     instanceNFT = await MyNFT.new(ether('0.001'), baseURI);
@@ -105,7 +105,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         let balanceAfter = await instanceNFT.balanceOf(owner);
         expect(balanceAfter).to.be.bignumber.equal(new BN(1));
         let tokenURI = await instanceNFT.tokenURI(new BN(1));
-        expect(tokenURI).to.be.equal("https://ipfs.io/ipfs/QmUMxEPMdDfz3FjQbnrhejUoUPX4DydGEptGA2PDsjMKMh/1.json");
+        expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/1.json");
         expectEvent(tx, "Buy", { buyer: owner, ethers: ether('1') });
       });
 
