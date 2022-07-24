@@ -18,15 +18,15 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
   let baseURI = "https://ipfs.io/ipfs/QmUMxEPMdDfz3FjQbnrhejUoUPX4DydGEptGA2PDsjMKMh/";
 
   before(async () => {
-    instanceNFT = await MyNFT.new(ether('0.001'),baseURI);
+    instanceNFT = await MyNFT.new(ether('0.001'), baseURI);
   });
 
   describe("Initialize contract - false", async () => {
     it("Error : nft price can't be equal 0", async () => {
-      await expectRevert(MyNFT.new(ether('0'),baseURI), "Error : nft price can't be equal 0");
+      await expectRevert(MyNFT.new(ether('0'), baseURI), "Error : nft price can't be equal 0");
     });
     it("Error : not valid URI", async () => {
-      await expectRevert(MyNFT.new(ether('1'),""), "Error : not valid URI");
+      await expectRevert(MyNFT.new(ether('1'), ""), "Error : not valid URI");
     });
   });
 
@@ -46,9 +46,10 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
       it("change price by owner", async () => {
         let currentPrice = await instanceNFT.nftPrice();
         expect(currentPrice).to.be.bignumber.equal(ether('0.001'));
-        await instanceNFT.setNftPrice(ether('1'));
+        let tx = await instanceNFT.setNftPrice(ether('1'));
         let currentPriceAfter = await instanceNFT.nftPrice();
         expect(currentPriceAfter).to.be.bignumber.equal(ether('1'));
+        expectEvent(tx, "SetNFTPrice", { price: ether('1') });
       });
     });
   });
@@ -75,18 +76,20 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
     describe("Done", async () => {
       it("setBaseURI - done in first time", async () => {
         let firstBaseURI = "https://ipfs.io/ipfs/";
-        await instanceNFT.setBaseURI(firstBaseURI);
+        let tx = await instanceNFT.setBaseURI(firstBaseURI);
         let baseURL = await instanceNFT.baseURILink();
         expect(baseURL).to.be.equal(firstBaseURI);
+        expectEvent(tx, "SetBaseURI", { baseURILink_: firstBaseURI });
       });
 
       it("setBaseURI - done in second time", async () => {
         let firstBaseURI = "https://ipfs.io/ipfs/";
         let baseURLBefore = await instanceNFT.baseURILink();
         expect(baseURLBefore).to.be.equal(firstBaseURI);
-        await instanceNFT.setBaseURI(baseURI);
+        let tx = await instanceNFT.setBaseURI(baseURI);
         let baseURLAfter = await instanceNFT.baseURILink();
         expect(baseURLAfter).to.be.equal(baseURI);
+        expectEvent(tx, "SetBaseURI", { baseURILink_: baseURI });
       });
     });
 
@@ -98,71 +101,77 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
       it("buy by owner", async () => {
         let balanceBefore = await instanceNFT.balanceOf(owner);
         expect(balanceBefore).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ value: ether('1') });
+        tx = await instanceNFT.buy({ value: ether('1') });
         let balanceAfter = await instanceNFT.balanceOf(owner);
         expect(balanceAfter).to.be.bignumber.equal(new BN(1));
         let tokenURI = await instanceNFT.tokenURI(new BN(1));
         expect(tokenURI).to.be.equal("https://ipfs.io/ipfs/QmUMxEPMdDfz3FjQbnrhejUoUPX4DydGEptGA2PDsjMKMh/1.json");
+        expectEvent(tx, "Buy", { buyer: owner, ethers: ether('1') });
       });
 
       it("buy by acc1", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc1);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc1);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ from: acc1, value: ether('1') });
+        let tx = await instanceNFT.buy({ from: acc1, value: ether('1') });
         let balanceAfterNFT = await instanceNFT.balanceOf(acc1);
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(1));
         let etherBalanceAfter = await web3.eth.getBalance(acc1);
         let etherBalance = new BN(etherBalanceAfter).add(ether('1'));
         expect(Number(etherBalance)).to.be.closeTo(Number(etherBalanceBefore), Number(ether('0.0003')));
+        expectEvent(tx, "Buy", { buyer: acc1, ethers: ether('1') });
       });
 
       it("buy by acc2", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc2);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc2);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ from: acc2, value: ether('1') });
+        let tx = await instanceNFT.buy({ from: acc2, value: ether('1') });
         let balanceAfterNFT = await instanceNFT.balanceOf(acc2);
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(1));
         let etherBalanceAfter = await web3.eth.getBalance(acc2);
         let etherBalance = new BN(etherBalanceAfter).add(ether('1'));
         expect(Number(etherBalance)).to.be.closeTo(Number(etherBalanceBefore), Number(ether('0.0003')));
+        expectEvent(tx, "Buy", { buyer: acc2, ethers: ether('1') });
       });
 
       it("buy by acc3", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc3);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc3);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ from: acc3, value: ether('1') });
+        let tx = await instanceNFT.buy({ from: acc3, value: ether('1') });
         let balanceAfterNFT = await instanceNFT.balanceOf(acc3);
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(1));
         let etherBalanceAfter = await web3.eth.getBalance(acc3);
         let etherBalance = new BN(etherBalanceAfter).add(ether('1'));
         expect(Number(etherBalance)).to.be.closeTo(Number(etherBalanceBefore), Number(ether('0.0003')));
+        expectEvent(tx, "Buy", { buyer: acc3, ethers: ether('1') });
       });
 
       it("buy by acc4", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc4);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc4);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ from: acc4, value: ether('1') });
+        let tx = await instanceNFT.buy({ from: acc4, value: ether('1') });
         let balanceAfterNFT = await instanceNFT.balanceOf(acc4);
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(1));
         let etherBalanceAfter = await web3.eth.getBalance(acc4);
         let etherBalance = new BN(etherBalanceAfter).add(ether('1'));
         expect(Number(etherBalance)).to.be.closeTo(Number(etherBalanceBefore), Number(ether('0.0003')));
+        expectEvent(tx, "Buy", { buyer: acc4, ethers: ether('1') });
       });
 
       it("buy by acc5", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc5);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc5);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
-        await instanceNFT.buy({ from: acc5, value: ether('1') });
+        let tx = await instanceNFT.buy({ from: acc5, value: ether('1') });
         let balanceAfterNFT = await instanceNFT.balanceOf(acc5);
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(1));
         let etherBalanceAfter = await web3.eth.getBalance(acc5);
         let etherBalance = new BN(etherBalanceAfter).add(ether('1'));
         expect(Number(etherBalance)).to.be.closeTo(Number(etherBalanceBefore), Number(ether('0.0003')));
+        expectEvent(tx, "Buy", { buyer: acc5, ethers: ether('1') });
       });
 
     });

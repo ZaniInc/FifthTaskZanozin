@@ -48,6 +48,32 @@ contract MyNFT is ERC721, Ownable {
     string public baseURILink;
 
     /**
+     * @dev event logs info about NFT's price when owner
+     * call function 'setNftPrice'
+     *
+     * @param price - price per NFT
+     */
+    event SetNFTPrice(uint256 price);
+
+    /**
+     * @dev event logs info base URI , when owner call
+     * 'setBaseURI'
+     *
+     * @param baseURILink_ - contain base URI link for all
+     * NFT's
+     */
+    event SetBaseURI(string baseURILink_);
+
+    /**
+     * @dev event logs info about who's buy nft and
+     * how many ether's transfer to SC
+     *
+     * @param buyer - who's buy
+     * @param ethers - how many ether's transfer
+     */
+    event Buy(address buyer, uint256 ethers);
+
+    /**
      * @dev Input uint256 for 'price_' and string for 'baseURI_'
      *
      * @param price_ - price per nft
@@ -73,6 +99,7 @@ contract MyNFT is ERC721, Ownable {
         );
         tokenCountId.increment();
         _safeMint(msg.sender, tokenCountId.current());
+        emit Buy(msg.sender, msg.value);
     }
 
     /**
@@ -84,6 +111,7 @@ contract MyNFT is ERC721, Ownable {
     function setNftPrice(uint256 price_) public onlyOwner {
         require(price_ > 0, "Error : nft price can't be equal 0");
         nftPrice = price_;
+        emit SetNFTPrice(price_);
     }
 
     /**
@@ -102,6 +130,7 @@ contract MyNFT is ERC721, Ownable {
     function setBaseURI(string memory baseURI_) public onlyOwner {
         require(bytes(baseURI_).length > 0, "Error : not valid URI");
         baseURILink = baseURI_;
+        emit SetBaseURI(baseURI_);
     }
 
     /**
