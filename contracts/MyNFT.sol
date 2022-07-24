@@ -72,8 +72,7 @@ contract MyNFT is ERC721, Ownable {
             "Error : all NFT's was sold"
         );
         tokenCountId.increment();
-        uint256 newTokenId = tokenCountId.current();
-        _safeMint(msg.sender, newTokenId);
+        _safeMint(msg.sender, tokenCountId.current());
     }
 
     /**
