@@ -7,21 +7,20 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
 contract MyNFT is ERC721, Ownable {
-    using Counters for Counter;
+    using Counters for Counters.Counter;
 
-    Counter tokenCountId;
+    Counters.Counter tokenCountId;
     uint256 nftPrice;
     string baseURI;
 
     constructor() ERC721("MyNft", "MNT") {}
 
     function buy() external payable {
-        require(msg.value >= price_ , "error");
-        _safeMint(msg.sender, tokenCountId);
-        _addTokenToOwnerEnumeration(msg.sender,tokenCountId);
+        require(msg.value >= nftPrice, "error");
+        uint256 newTokenId = tokenCountId.current();
+        _safeMint(msg.sender, newTokenId);
         tokenCountId.increment();
     }
 
@@ -30,10 +29,10 @@ contract MyNFT is ERC721, Ownable {
     }
 
     function _baseURI() internal view override returns (string memory) {
-        return baseUR
-        I;
+        return baseURI;
     }
-    function setBaseUri (string memory baseURI_) external onlyOwner{
+
+    function setBaseURI(string memory baseURI_) external onlyOwner {
         baseURI = baseURI_;
     }
 }
