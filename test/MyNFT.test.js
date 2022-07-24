@@ -25,6 +25,9 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
     it("Error : nft price can't be equal 0", async () => {
       await expectRevert(MyNFT.new(ether('0'),baseURI), "Error : nft price can't be equal 0");
     });
+    it("Error : not valid URI", async () => {
+      await expectRevert(MyNFT.new(ether('1'),""), "Error : not valid URI");
+    });
   });
 
   describe("setNftPrice function", async () => {
