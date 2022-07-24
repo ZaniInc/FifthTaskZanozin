@@ -18,12 +18,12 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
   let baseURI = "https://ipfs.io/ipfs/QmUMxEPMdDfz3FjQbnrhejUoUPX4DydGEptGA2PDsjMKMh/";
 
   before(async () => {
-    instanceNFT = await MyNFT.new(ether('0.001'));
+    instanceNFT = await MyNFT.new(ether('0.001'),baseURI);
   });
 
   describe("Initialize contract - false", async () => {
     it("Error : nft price can't be equal 0", async () => {
-      await expectRevert(MyNFT.new(ether('0')), "Error : nft price can't be equal 0");
+      await expectRevert(MyNFT.new(ether('0'),baseURI), "Error : nft price can't be equal 0");
     });
   });
 
@@ -55,27 +55,17 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
     describe("False", async () => {
       it("Error : not valid URI", async () => {
         let baseURL = await instanceNFT.baseURILink();
-        expect(baseURL).to.be.equal("");
+        expect(baseURL).to.be.equal(baseURI);
         await expectRevert(instanceNFT.setBaseURI(""), "Error : not valid URI");
         let baseURL_ = await instanceNFT.baseURILink();
-        expect(baseURL_).to.be.equal("");
+        expect(baseURL_).to.be.equal(baseURI);
       });
       it("Ownable : caller is not the owner", async () => {
         let baseURL = await instanceNFT.baseURILink();
-        expect(baseURL).to.be.equal("");
+        expect(baseURL).to.be.equal(baseURI);
         await expectRevert(instanceNFT.setBaseURI(baseURI, { from: acc6 }), "Ownable: caller is not the owner");
         let baseURL_ = await instanceNFT.baseURILink();
-        expect(baseURL_).to.be.equal("");
-      });
-    });
-
-    describe("buy function - false", async () => {
-      it("Error : first set base URI", async () => {
-        let balanceBefore = await instanceNFT.balanceOf(acc6);
-        expect(balanceBefore).to.be.bignumber.equal(new BN(0));
-        await expectRevert(instanceNFT.buy({ from: acc6, value: ether('1') }), "Error : first set base URI");
-        let balanceAfter = await instanceNFT.balanceOf(acc6);
-        expect(balanceAfter).to.be.bignumber.equal(new BN(0));
+        expect(baseURL_).to.be.equal(baseURI);
       });
     });
 
