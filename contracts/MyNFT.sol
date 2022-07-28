@@ -1,13 +1,11 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.7;
-
-// Import this file to use console.log
-import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "./interfaces/IMyNFT.sol";
 
 /**
  * @title Nft
@@ -15,7 +13,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  * @notice This SC allows users buy NFT and register
  * ownership on blockchain
  */
-contract MyNFT is ERC721, Ownable {
+contract MyNFT is ERC721, Ownable, IMyNFT {
     using Counters for Counters.Counter;
     using Strings for uint256;
 
@@ -38,7 +36,7 @@ contract MyNFT is ERC721, Ownable {
      * @dev contain max tokens supply
      *
      */
-    uint256 public tokenSupply = 6;
+    uint256 public tokenSupply = 5;
 
     /**
      * @dev contain baseURI.
@@ -46,32 +44,6 @@ contract MyNFT is ERC721, Ownable {
      * @notice can be changed by owner.
      */
     string public baseURILink;
-
-    /**
-     * @dev event logs info about NFT's price when owner
-     * call function 'setNftPrice'
-     *
-     * @param price - price per NFT
-     */
-    event SetNFTPrice(uint256 price);
-
-    /**
-     * @dev event logs info base URI , when owner call
-     * 'setBaseURI'
-     *
-     * @param baseURILink_ - contain base URI link for all
-     * NFT's
-     */
-    event SetBaseURI(string baseURILink_);
-
-    /**
-     * @dev event logs info about who's buy nft and
-     * how many ether's transfer to SC
-     *
-     * @param buyer - who's buy
-     * @param ethers - how many ether's transfer
-     */
-    event Buy(address buyer, uint256 ethers);
 
     /**
      * @dev Input uint256 for 'price_' and string for 'baseURI_'
@@ -91,15 +63,15 @@ contract MyNFT is ERC721, Ownable {
      * @notice can be by call by any one . revert transaction if
      * all nft's was minted or paymant value too low
      */
-    function buy() external payable {
+    function buy() external payable override {
         require(msg.value == nftPrice, "Error : payment value too low");
         require(
-            tokenCountId._value < tokenSupply,
+            tokenCountId.current() <= tokenSupply,
             "Error : all NFT's was sold"
         );
-        tokenCountId.increment();
         _safeMint(msg.sender, tokenCountId.current());
-        emit Buy(msg.sender, msg.value);
+        emit Buy(msg.sender, tokenCountId.current(), msg.value);
+        tokenCountId.increment();
     }
 
     /**
@@ -108,7 +80,7 @@ contract MyNFT is ERC721, Ownable {
      * @param price_ - input price per nft
      * @notice can be call only by owner , price can't be 0
      */
-    function setNftPrice(uint256 price_) public onlyOwner {
+    function setNftPrice(uint256 price_) public override onlyOwner {
         require(price_ > 0, "Error : nft price can't be equal 0");
         nftPrice = price_;
         emit SetNFTPrice(price_);
@@ -127,7 +99,7 @@ contract MyNFT is ERC721, Ownable {
      * @param baseURI_ - input base URI
      * @notice can be call only by owner , 'baseURI_' can't be 0
      */
-    function setBaseURI(string memory baseURI_) public onlyOwner {
+    function setBaseURI(string memory baseURI_) internal onlyOwner {
         require(bytes(baseURI_).length > 0, "Error : not valid URI");
         baseURILink = baseURI_;
         emit SetBaseURI(baseURI_);
@@ -146,9 +118,6 @@ contract MyNFT is ERC721, Ownable {
         _requireMinted(tokenId);
 
         string memory baseURI = _baseURI();
-        return
-            bytes(baseURI).length > 0
-                ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json"))
-                : "";
+        return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
     }
 }

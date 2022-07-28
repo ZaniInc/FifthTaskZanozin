@@ -54,47 +54,6 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
     });
   });
 
-  describe("setBaseURI function", async () => {
-
-    describe("False", async () => {
-      it("Error : not valid URI", async () => {
-        let baseURL = await instanceNFT.baseURILink();
-        expect(baseURL).to.be.equal(baseURI);
-        await expectRevert(instanceNFT.setBaseURI(""), "Error : not valid URI");
-        let baseURL_ = await instanceNFT.baseURILink();
-        expect(baseURL_).to.be.equal(baseURI);
-      });
-      it("Ownable : caller is not the owner", async () => {
-        let baseURL = await instanceNFT.baseURILink();
-        expect(baseURL).to.be.equal(baseURI);
-        await expectRevert(instanceNFT.setBaseURI(baseURI, { from: acc6 }), "Ownable: caller is not the owner");
-        let baseURL_ = await instanceNFT.baseURILink();
-        expect(baseURL_).to.be.equal(baseURI);
-      });
-    });
-
-    describe("Done", async () => {
-      it("setBaseURI - done in first time", async () => {
-        let firstBaseURI = "https://ipfs.io/ipfs/";
-        let tx = await instanceNFT.setBaseURI(firstBaseURI);
-        let baseURL = await instanceNFT.baseURILink();
-        expect(baseURL).to.be.equal(firstBaseURI);
-        expectEvent(tx, "SetBaseURI", { baseURILink_: firstBaseURI });
-      });
-
-      it("setBaseURI - done in second time", async () => {
-        let firstBaseURI = "https://ipfs.io/ipfs/";
-        let baseURLBefore = await instanceNFT.baseURILink();
-        expect(baseURLBefore).to.be.equal(firstBaseURI);
-        let tx = await instanceNFT.setBaseURI(baseURI);
-        let baseURLAfter = await instanceNFT.baseURILink();
-        expect(baseURLAfter).to.be.equal(baseURI);
-        expectEvent(tx, "SetBaseURI", { baseURILink_: baseURI });
-      });
-    });
-
-  });
-
   describe("Buy function", async () => {
 
     describe("Done", async () => {
@@ -104,9 +63,11 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         tx = await instanceNFT.buy({ value: ether('1') });
         let balanceAfter = await instanceNFT.balanceOf(owner);
         expect(balanceAfter).to.be.bignumber.equal(new BN(1));
-        let tokenURI = await instanceNFT.tokenURI(new BN(1));
-        expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/1.json");
-        expectEvent(tx, "Buy", { buyer: owner, ethers: ether('1') });
+        let tokenURI = await instanceNFT.tokenURI(new BN(0));
+        expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/0.json");
+        let event = expectEvent(tx, "Buy");
+        expectEvent(tx, "Buy", { buyer: owner,ethers: ether('1') });
+        expect(event.args.tokenID).to.be.bignumber.equal(new BN(0));
       });
 
       it("buy by acc1", async () => {
