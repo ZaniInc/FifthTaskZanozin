@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.7;
+pragma solidity 0.8.10;
 
 /**
  * @title Nft
@@ -30,6 +30,7 @@ interface IMyNFT {
      * how many ether's transfer to SC
      *
      * @param buyer - who's buy
+     * @param tokenID - token ID which user buy
      * @param ethers - how many ether's transfer
      */
     event Buy(address buyer, uint256 tokenID ,uint256 ethers);
@@ -50,4 +51,12 @@ interface IMyNFT {
      * @notice can be call only by owner , price can't be 0
      */
     function setNftPrice(uint256 price_) external;
+
+    /**
+     * @dev allows owner take ether from SC , which earned by
+     * sell NFT's
+     *
+     * @notice can be by call by owner
+     */
+    function withdraw() external;
 }

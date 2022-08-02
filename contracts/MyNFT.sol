@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.7;
+pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,7 +13,7 @@ import "./interfaces/IMyNFT.sol";
  * @notice This SC allows users buy NFT and register
  * ownership on blockchain
  */
-contract MyNFT is ERC721, Ownable, IMyNFT {
+contract MyNFT is IMyNFT, ERC721, Ownable {
     using Counters for Counters.Counter;
     using Strings for uint256;
 
@@ -36,7 +36,7 @@ contract MyNFT is ERC721, Ownable, IMyNFT {
      * @dev contain max tokens supply
      *
      */
-    uint256 public tokenSupply = 5;
+    uint256 public constant tokenSupply = 5;
 
     /**
      * @dev contain baseURI.
@@ -53,7 +53,7 @@ contract MyNFT is ERC721, Ownable, IMyNFT {
      */
     constructor(uint256 price_, string memory baseURI_) ERC721("MyNft", "MNT") {
         setNftPrice(price_);
-        setBaseURI(baseURI_);
+        _setBaseURI(baseURI_);
     }
 
     /**
@@ -64,14 +64,25 @@ contract MyNFT is ERC721, Ownable, IMyNFT {
      * all nft's was minted or paymant value too low
      */
     function buy() external payable override {
-        require(msg.value == nftPrice, "Error : payment value too low");
+        require(msg.value == nftPrice, "Error : incorrect payment value");
         require(
             tokenCountId.current() <= tokenSupply,
             "Error : all NFT's was sold"
         );
-        _safeMint(msg.sender, tokenCountId.current());
-        emit Buy(msg.sender, tokenCountId.current(), msg.value);
+        uint256 tokenId = tokenCountId.current();
         tokenCountId.increment();
+        _safeMint(msg.sender, tokenId);
+        emit Buy(msg.sender, tokenId, msg.value);
+    }
+
+    /**
+     * @dev allows owner take ether from SC , which earned by
+     * sell NFT's
+     *
+     * @notice can be by call by owner
+     */
+    function withdraw() external override onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     /**
@@ -99,7 +110,7 @@ contract MyNFT is ERC721, Ownable, IMyNFT {
      * @param baseURI_ - input base URI
      * @notice can be call only by owner , 'baseURI_' can't be 0
      */
-    function setBaseURI(string memory baseURI_) internal onlyOwner {
+    function _setBaseURI(string memory baseURI_) internal onlyOwner {
         require(bytes(baseURI_).length > 0, "Error : not valid URI");
         baseURILink = baseURI_;
         emit SetBaseURI(baseURI_);
@@ -116,8 +127,7 @@ contract MyNFT is ERC721, Ownable, IMyNFT {
         returns (string memory)
     {
         _requireMinted(tokenId);
-
-        string memory baseURI = _baseURI();
-        return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
+        return
+            string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
     }
 }
