@@ -18,6 +18,12 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
     using Strings for uint256;
 
     /**
+     * @dev contain max tokens supply
+     *
+     */
+    uint256 public constant tokenSupply = 5;
+
+    /**
      * @dev contain how many tokens was minted at
      * current time.
      *
@@ -31,12 +37,6 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
      * @notice can be changed by owner.
      */
     uint256 public nftPrice;
-
-    /**
-     * @dev contain max tokens supply
-     *
-     */
-    uint256 public constant tokenSupply = 5;
 
     /**
      * @dev contain baseURI.
@@ -65,11 +65,8 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
      */
     function buy() external payable override {
         require(msg.value == nftPrice, "Error : incorrect payment value");
-        require(
-            tokenCountId.current() <= tokenSupply,
-            "Error : all NFT's was sold"
-        );
         uint256 tokenId = tokenCountId.current();
+        require(tokenId <= tokenSupply, "Error : all NFT's was sold");
         tokenCountId.increment();
         _safeMint(msg.sender, tokenId);
         emit Buy(msg.sender, tokenId, msg.value);
@@ -81,8 +78,8 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
      *
      * @notice can be by call by owner
      */
-    function withdraw() external override onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
+    function withdraw() external payable override onlyOwner {
+        (bool sent , bytes memory data) = payable(msg.sender).call{value: address(this).balance}("");
     }
 
     /**
@@ -98,10 +95,18 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
     }
 
     /**
-     * @dev See {ERC721-_baseURI}.
+     * @dev See {IERC721Metadata-tokenURI}.
      */
-    function _baseURI() internal view override returns (string memory) {
-        return baseURILink;
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        _requireMinted(tokenId);
+        return
+            string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
     }
 
     /**
@@ -117,17 +122,9 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
     }
 
     /**
-     * @dev See {IERC721Metadata-tokenURI}.
+     * @dev See {ERC721-_baseURI}.
      */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        _requireMinted(tokenId);
-        return
-            string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
+    function _baseURI() internal view override returns (string memory) {
+        return baseURILink;
     }
 }

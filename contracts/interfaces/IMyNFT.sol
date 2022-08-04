@@ -58,5 +58,5 @@ interface IMyNFT {
      *
      * @notice can be by call by owner
      */
-    function withdraw() external;
+    function withdraw() external payable;
 }

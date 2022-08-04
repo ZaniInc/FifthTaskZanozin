@@ -229,7 +229,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         let contractBalanceBefore = await web3.eth.getBalance(instanceNFT.address);
         expect(contractBalanceBefore).to.be.bignumber.equal(ether('6'));
         let ownerBalanceBefore = await web3.eth.getBalance(owner);
-        expect(Number(ownerBalanceBefore)).to.be.closeTo(Number(ether('9998.9877')), Number(ether('0.00005')));
+        expect(Number(ownerBalanceBefore)).to.be.closeTo(Number(ether('9998.9877')), Number(ether('0.00006')));
         await instanceNFT.withdraw();
         let contractBalanceAfter = await web3.eth.getBalance(instanceNFT.address);
         expect(contractBalanceAfter).to.be.bignumber.equal(ether('0'));
