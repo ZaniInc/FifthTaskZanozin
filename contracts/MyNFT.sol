@@ -80,6 +80,7 @@ contract MyNFT is IMyNFT, ERC721, Ownable {
      */
     function withdraw() external payable override onlyOwner {
         (bool sent , bytes memory data) = payable(msg.sender).call{value: address(this).balance}("");
+        require(sent, "Failed to send Ether");
     }
 
     /**
