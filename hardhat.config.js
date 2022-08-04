@@ -1,11 +1,10 @@
-const SecurityErrorListener = require("solhint/lib/tree-listener");
-
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-truffle5");
 require("solhint");
 require("solidity-coverage");
-let secret = require("./secret.json")
+require("@nomiclabs/hardhat-etherscan");
+let secret = require("./secret.json");
 
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -17,10 +16,10 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  network:{
-    ropsten:{
-      url:secret.api,
-      accounts:[secret.key]
+  networks:{
+    ropsten : {
+      url: secret.api,
+      accounts:[secret.key],
     }
   },
   etherscan:{
