@@ -21,17 +21,17 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
     instanceNFT = await MyNFT.new(ether('0.001'), baseURI);
   });
 
-  describe("Initialize contract - false", async () => {
-    it("Error : nft price can't be equal 0", async () => {
+  describe("Should fail Initialize contract", async () => {
+    it("Should fail if nft price equal 0", async () => {
       await expectRevert(MyNFT.new(ether('0'), baseURI), "Error : nft price can't be equal 0");
     });
-    it("Error : not valid URI", async () => {
+    it("Should fail if not valid URI", async () => {
       await expectRevert(MyNFT.new(ether('1'), ""), "Error : not valid URI");
     });
   });
 
   describe("Check correct initialize contract", async () => {
-    it("Successs initialize", async () => {
+    it("Should success initialize", async () => {
       let priceBefore = await instanceNFT.nftPrice();
       expect(priceBefore).to.be.bignumber.equal(ether('0.001'),);
       let baseUri = await instanceNFT.baseURILink();
@@ -42,7 +42,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
   describe("setNftPrice", async () => {
 
     describe("Should fail if", async () => {
-      it("Ownable: caller is not the owner", async () => {
+      it("Should fail if caller is not the owner", async () => {
         let currentPrice = await instanceNFT.nftPrice();
         expect(currentPrice).to.be.bignumber.equal(ether('0.001'));
         await expectRevert(instanceNFT.setNftPrice(ether('1'), { from: acc6 }), "Ownable: caller is not the owner");
@@ -51,8 +51,8 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
       });
     });
 
-    describe("Success", async () => {
-      it("change price by owner and emit events", async () => {
+    describe("Should success", async () => {
+      it("Should success change price by owner and emit events", async () => {
         let currentPrice = await instanceNFT.nftPrice();
         expect(currentPrice).to.be.bignumber.equal(ether('0.001'));
         let tx = await instanceNFT.setNftPrice(ether('1'));
@@ -65,8 +65,8 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
 
   describe("Buy", async () => {
 
-    describe("Success", async () => {
-      it("buy by owner", async () => {
+    describe("Should success", async () => {
+      it("Should success buy by owner", async () => {
         let balanceBefore = await instanceNFT.balanceOf(owner);
         expect(balanceBefore).to.be.bignumber.equal(new BN(0));
         tx = await instanceNFT.buy({ value: ether('1') });
@@ -77,7 +77,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expect(event.args.tokenID).to.be.bignumber.equal(new BN(0));
       });
 
-      it("buy by acc1", async () => {
+      it("Should success buy by acc1", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc1);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc1);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
@@ -90,7 +90,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expectEvent(tx, "Buy", { buyer: acc1, ethers: ether('1') });
       });
 
-      it("buy by acc2", async () => {
+      it("Should success buy by acc2", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc2);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc2);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
@@ -103,7 +103,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expectEvent(tx, "Buy", { buyer: acc2, ethers: ether('1') });
       });
 
-      it("buy by acc3", async () => {
+      it("Should success buy by acc3", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc3);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc3);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
@@ -116,7 +116,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expectEvent(tx, "Buy", { buyer: acc3, ethers: ether('1') });
       });
 
-      it("buy by acc4", async () => {
+      it("Should success buy by acc4", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc4);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc4);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
@@ -129,7 +129,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expectEvent(tx, "Buy", { buyer: acc4, ethers: ether('1') });
       });
 
-      it("buy by acc5", async () => {
+      it("Should success buy by acc5", async () => {
         let etherBalanceBefore = await web3.eth.getBalance(acc5);
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc5);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
@@ -144,7 +144,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
 
     });
     describe("Should fail if", async () => {
-      it("Error : all NFT's was sold", async () => {
+      it("Should fail if all NFT's was sold", async () => {
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc6);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
         await expectRevert(instanceNFT.buy({ from: acc6, value: ether('1') }), "Error : all NFT's was sold");
@@ -152,7 +152,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(0));
       });
 
-      it("Error : incorrect payment value", async () => {
+      it("Should fail if incorrect payment value", async () => {
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc6);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
         await expectRevert(instanceNFT.buy({ from: acc6, value: ether('0') }), "Error : incorrect payment value");
@@ -160,7 +160,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         expect(balanceAfterNFT).to.be.bignumber.equal(new BN(0));
       });
 
-      it("Error : incorrect payment value", async () => {
+      it("Should fail if incorrect payment value", async () => {
         let balanceBeforeNFT = await instanceNFT.balanceOf(acc6);
         expect(balanceBeforeNFT).to.be.bignumber.equal(new BN(0));
         await expectRevert(instanceNFT.buy({ from: acc6, value: ether('2') }), "Error : incorrect payment value");
@@ -171,26 +171,26 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
   });
 
   describe("Check tokens Id's", async () => {
-    describe("Success", async () => {
-      it("owner of token 0", async () => {
+    describe("Should success", async () => {
+      it("Should success check owner of token 0", async () => {
         let tokenURI = await instanceNFT.tokenURI(new BN(0));
         expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/0.json");
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(0));
         expect(ownerOfToken0).to.be.equal(owner);
       });
-      it("owner of token 1", async () => {
+      it("Should success check owner of token 1", async () => {
         let tokenURI = await instanceNFT.tokenURI(new BN(1));
         expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/1.json");
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(1));
         expect(ownerOfToken0).to.be.equal(acc1);
       });
-      it("owner of token 2", async () => {
+      it("Should success check owner of token 2", async () => {
         let tokenURI = await instanceNFT.tokenURI(new BN(2));
         expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/2.json");
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(2));
         expect(ownerOfToken0).to.be.equal(acc2);
       });
-      it("owner of token 3", async () => {
+      it("Should success check owner of token 3", async () => {
         let tokenURI = await instanceNFT.tokenURI(new BN(3));
         expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/3.json");
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(3));
@@ -202,7 +202,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(4));
         expect(ownerOfToken0).to.be.equal(acc4);
       });
-      it("owner of token 5", async () => {
+      it("Should success check owner of token 5", async () => {
         let tokenURI = await instanceNFT.tokenURI(new BN(5));
         expect(tokenURI).to.be.equal("https://gateway.pinata.cloud/ipfs/QmcUH66aaS6iCLJdDCas845xkzcRYgq8NNwfs3FMir8wTs/5.json");
         let ownerOfToken0 = await instanceNFT.ownerOf(new BN(5));
@@ -215,7 +215,7 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
   describe("Withdraw", async () => {
 
     describe("Should fail if", async () => {
-      it("Ownable: caller is not the owner", async () => {
+      it("Should fail if caller is not the owner", async () => {
         let contractBalanceBefore = await web3.eth.getBalance(instanceNFT.address);
         expect(contractBalanceBefore).to.be.bignumber.equal(ether('6'));
         await expectRevert(instanceNFT.withdraw({ from: acc2 }), "Ownable: caller is not the owner");
@@ -224,8 +224,8 @@ contract("MyNFT", async ([owner, acc1, acc2, acc3, acc4, acc5, acc6]) => {
       });
     });
 
-    describe("Success", async () => {
-      it("withdraw by owner", async () => {
+    describe("Should success", async () => {
+      it("Should success withdraw by owner", async () => {
         let contractBalanceBefore = await web3.eth.getBalance(instanceNFT.address);
         expect(contractBalanceBefore).to.be.bignumber.equal(ether('6'));
         let ownerBalanceBefore = await web3.eth.getBalance(owner);
